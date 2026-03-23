@@ -1,0 +1,55 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-Your_strong_Password123}"
+      MSSQL_PID: "Developer"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: MaeServiceApi/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ConnectionStrings__Default: "Server=sqlserver,1433;Database=MaeService;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_strong_Password123};TrustServerCertificate=True;Encrypt=False"
+      Jwt__Key: "${JWT_KEY:-MAEService2024SuperSecretKeyForJWT}"
+      Jwt__Issuer: "${JWT_ISSUER:-MaeServiceApi}"
+      Jwt__Audience: "${JWT_AUDIENCE:-MaeServiceFrontend}"
+      Mqtt__Host: "${MQTT_HOST:-broker.hivemq.com}"
+      Mqtt__Port: "${MQTT_PORT:-1883}"
+      Mqtt__UseTls: "${MQTT_USE_TLS:-false}"
+      Mqtt__Username: "${MQTT_USERNAME:-}"
+      Mqtt__Password: "${MQTT_PASSWORD:-}"
+      # Example: subscribe to ChirpStack + demo topics by default; override with MQTT_TOPICS__0..N if needed
+      Mqtt__Topics__0: "maeservice/devices/+/telemetry"
+      Mqtt__Topics__1: "application/+/device/+/event/up"
+      Mqtt__Topics__2: "v3/+/devices/+/up"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: maeservice-frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: "/api/v2"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  mssql_data:
+

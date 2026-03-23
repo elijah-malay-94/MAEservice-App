@@ -1,0 +1,4 @@
+cd ~/desktop/MAEService
+docker compose up --build
+
+ngrok http 80
