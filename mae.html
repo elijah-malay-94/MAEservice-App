@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A.E. srl – Portale Strumenti Geofisici Avanzati IoT</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #F5C800;
+    --yellow-bright: #FFD700;
+    --yellow-muted: #E0B800;
+    --black: #0A0A0A;
+    --dark: #111111;
+    --dark2: #1A1A1A;
+    --dark3: #242424;
+    --dark4: #2E2E2E;
+    --white: #FFFFFF;
+    --gray: #AAAAAA;
+    --gray-light: #D0D0D0;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-weight: 400;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAVBAR ─── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--black);
+    border-bottom: 2px solid var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 70px;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .nav-logo-badge {
+    width: 42px;
+    height: 42px;
+    background: var(--yellow);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--black);
+    letter-spacing: 0.5px;
+    font-weight: 900;
+  }
+
+  .nav-logo-text {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--yellow);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--gray-light);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--yellow); }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    overflow: hidden;
+    padding: 80px 24px;
+    background: var(--dark);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 60%, rgba(245,200,0,0.12) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(245,200,0,0.04) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(245,200,0,0.04) 40px);
+  }
+
+  .hero-eyebrow {
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(56px, 8vw, 110px);
+    letter-spacing: 6px;
+    color: var(--white);
+    line-height: 0.9;
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .hero h1 span { color: var(--yellow); }
+
+  .hero-subtitle {
+    font-size: 15px;
+    color: var(--gray);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 20px;
+    position: relative;
+  }
+
+  .hero-cta {
+    margin-top: 36px;
+    display: flex;
+    gap: 16px;
+    position: relative;
+  }
+
+  .btn-primary {
+    background: var(--yellow);
+    color: var(--black);
+    border: none;
+    padding: 14px 32px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-primary:hover { background: var(--yellow-bright); transform: translateY(-2px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--yellow);
+    border: 2px solid var(--yellow);
+    padding: 12px 32px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .btn-outline:hover { background: var(--yellow); color: var(--black); }
+
+  /* ─── ACCESS BAND ─── */
+  .access-band {
+    background: var(--dark2);
+    border-top: 1px solid var(--dark4);
+    border-bottom: 1px solid var(--dark4);
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .access-band-text h3 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--yellow);
+    margin-bottom: 6px;
+  }
+
+  .access-band-text p {
+    font-size: 14px;
+    color: var(--gray);
+    max-width: 520px;
+    line-height: 1.6;
+  }
+
+  /* ─── SERVICES GRID ─── */
+  .section {
+    padding: 80px 48px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4vw, 52px);
+    letter-spacing: 4px;
+    color: var(--white);
+    margin-bottom: 40px;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+    background: var(--dark4);
+    border: 2px solid var(--dark4);
+  }
+
+  .service-card {
+    background: var(--dark2);
+    padding: 36px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--yellow);
+    transition: width 0.3s ease;
+  }
+
+  .service-card:hover { background: var(--dark3); }
+  .service-card:hover::after { width: 100%; }
+
+  .service-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(245,200,0,0.1);
+    border: 1px solid rgba(245,200,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .service-card h4 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--yellow);
+  }
+
+  .service-card p {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.65;
+  }
+
+  .service-link {
+    margin-top: auto;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--yellow-muted);
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .service-link:hover { color: var(--yellow); }
+
+  /* ─── SMART METER / FEATURE SECTION ─── */
+  .feature-section {
+    background: var(--dark2);
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+
+  .feature-section .feature-visual {
+    position: relative;
+    height: 340px;
+    background: var(--dark3);
+    border: 2px solid var(--dark4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .feature-visual::before {
+    content: '';
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 2px solid rgba(245,200,0,0.15);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  .feature-visual::after {
+    content: '';
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 2px solid rgba(245,200,0,0.3);
+    animation: pulse 3s ease-in-out infinite 0.5s;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.6; }
+  }
+
+  .feature-center-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .feature-content h2 {
+    font-family: var(--font-display);
+    font-size: 44px;
+    letter-spacing: 4px;
+    color: var(--white);
+    margin-bottom: 20px;
+    line-height: 1;
+  }
+
+  .feature-content h2 span { color: var(--yellow); }
+
+  .feature-content p {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.75;
+    margin-bottom: 28px;
+  }
+
+  /* ─── PROJECT SECTION ─── */
+  .project-section {
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+
+  .project-section .project-content h2 {
+    font-family: var(--font-display);
+    font-size: 44px;
+    letter-spacing: 4px;
+    color: var(--white);
+    margin-bottom: 20px;
+  }
+
+  .project-section .project-content h2 span { color: var(--yellow); }
+
+  .project-section .project-content p {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.75;
+    margin-bottom: 28px;
+  }
+
+  .project-visual {
+    height: 340px;
+    background: var(--dark2);
+    border: 2px solid var(--dark4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-visual-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .project-grid-item {
+    background: var(--dark3);
+    border: 1px solid var(--dark4);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .project-grid-item:hover { border-color: var(--yellow); color: var(--yellow); }
+  .project-grid-item.active { border-color: var(--yellow); color: var(--yellow); background: rgba(245,200,0,0.05); }
+
+  /* ─── DIGITALIZATION SECTION ─── */
+  .digit-section {
+    background: var(--dark2);
+    padding: 80px 48px;
+  }
+
+  .digit-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+  }
+
+  .digit-card {
+    background: var(--dark3);
+    border: 1px solid var(--dark4);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .digit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--yellow);
+  }
+
+  .digit-card-num {
+    font-family: var(--font-display);
+    font-size: 52px;
+    color: rgba(245,200,0,0.15);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .digit-card h4 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    margin-bottom: 12px;
+  }
+
+  .digit-card p {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.65;
+  }
+
+  /* ─── GESTORE SECTION ─── */
+  .gestore-section {
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+
+  .gestore-section h2 {
+    font-family: var(--font-display);
+    font-size: 44px;
+    letter-spacing: 4px;
+    color: var(--white);
+    margin-bottom: 20px;
+  }
+
+  .gestore-section h2 span { color: var(--yellow); }
+
+  .gestore-section p {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+
+  .contact-box {
+    background: var(--dark2);
+    border: 2px solid var(--yellow);
+    padding: 32px 28px;
+  }
+
+  .contact-box h3 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    margin-bottom: 20px;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--dark4);
+  }
+
+  .contact-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .contact-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(245,200,0,0.1);
+    border: 1px solid rgba(245,200,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .contact-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 3px;
+  }
+
+  .contact-value {
+    font-size: 14px;
+    color: var(--white);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .contact-value:hover { color: var(--yellow); }
+
+  .hours-note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--gray);
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    padding: 12px;
+    background: rgba(245,200,0,0.05);
+    border-left: 2px solid var(--yellow);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--dark);
+    border-top: 2px solid var(--dark4);
+    padding: 48px 48px 32px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .footer-brand p {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.7;
+    margin-top: 12px;
+    max-width: 280px;
+  }
+
+  .footer-col h5 {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 16px;
+  }
+
+  .footer-col ul { list-style: none; }
+
+  .footer-col ul li {
+    margin-bottom: 10px;
+  }
+
+  .footer-col ul li a {
+    font-size: 13px;
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-col ul li a:hover { color: var(--yellow); }
+
+  .footer-bottom {
+    border-top: 1px solid var(--dark4);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--gray);
+  }
+
+  .footer-bottom span { color: var(--yellow); }
+
+  /* ─── TICKER BAND ─── */
+  .ticker {
+    background: var(--yellow);
+    color: var(--black);
+    overflow: hidden;
+    padding: 10px 0;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 3px;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .section, .digit-section, .gestore-section { padding: 48px 20px; }
+    .feature-section, .project-section { grid-template-columns: 1fr; padding: 48px 20px; }
+    .gestore-section { grid-template-columns: 1fr; padding: 48px 20px; }
+    .digit-cards { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; padding: 0 20px; }
+    .access-band { padding: 28px 20px; }
+    .footer-bottom { padding: 0 20px; }
+    footer { padding: 40px 20px 24px; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    .hero { padding: 60px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-badge">MAE</div>
+    <div class="nav-logo-text">M.A.E. SRL</div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">Servizi</a></li>
+    <li><a href="#">Dispositivi Smart</a></li>
+    <li><a href="#">Il Progetto</a></li>
+    <li><a href="#">Avvisi</a></li>
+    <li><a href="#">Download</a></li>
+    <li><a href="#">FAQ</a></li>
+    <li><a href="#">Contatti</a></li>
+  </ul>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    ◆ MONITORAGGIO GEOFISICO IoT AVANZATO &nbsp;&nbsp;&nbsp; ◆ TRASMISSIONE DATI IN TEMPO REALE &nbsp;&nbsp;&nbsp; ◆ RETI DI SENSORI AVANZATE &nbsp;&nbsp;&nbsp; ◆ M.A.E. SRL – STRUMENTI GEOFISICI AVANZATI IoT &nbsp;&nbsp;&nbsp; ◆ MISURAZIONI DI PRECISIONE &nbsp;&nbsp;&nbsp; ◆ INFRASTRUTTURA DIGITALE &nbsp;&nbsp;&nbsp; ◆ MONITORAGGIO GEOFISICO IoT AVANZATO &nbsp;&nbsp;&nbsp; ◆ TRASMISSIONE DATI IN TEMPO REALE &nbsp;&nbsp;&nbsp;
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Portale Utente · Sistema di Monitoraggio Integrato</div>
+  <h1>M.<span>A.</span>E.</h1>
+  <div class="hero-subtitle">Strumenti Geofisici Avanzati IoT – Portale Utente</div>
+  <div class="hero-cta">
+    <a href="#" class="btn-primary">Accedi al Portale</a>
+    <a href="#services" class="btn-outline">I Nostri Servizi</a>
+  </div>
+</section>
+
+<!-- ACCESS BAND -->
+<div class="access-band">
+  <div class="access-band-text">
+    <h3>ACCESSO AL PORTALE</h3>
+    <p>Il portale è dedicato esclusivamente agli utenti che dispongono già di un dispositivo Smart IoT M.A.E. attivo. Se non hai ancora registrato il tuo dispositivo, contatta il nostro servizio clienti per fissare un appuntamento di installazione.</p>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <a href="#" class="btn-primary">Prenota un Appuntamento</a>
+    <a href="#" class="btn-outline">Registrati</a>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="section-label">Cosa offriamo</div>
+  <div class="section-title">SCEGLI IL TUO SERVIZIO</div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">⚠️</div>
+      <h4>SEGNALAZIONE</h4>
+      <p>Segnala un problema tecnico dopo l'installazione del dispositivo — guasti del sensore, perdita di connettività o danni fisici all'unità.</p>
+      <a href="#" class="service-link">Clicca qui →</a>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📋</div>
+      <h4>VERBALE DI INSTALLAZIONE</h4>
+      <p>Richiedi il verbale ufficiale dell'installazione del tuo dispositivo, comprensivo dei dati di calibrazione e delle letture iniziali.</p>
+      <a href="#" class="service-link">Clicca qui →</a>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📅</div>
+      <h4>PRENOTAZIONE</h4>
+      <p>Non sei ancora stato contattato per l'installazione? Prenota comodamente un appuntamento con i nostri tecnici sul campo.</p>
+      <a href="#" class="service-link">Clicca qui →</a>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📡</div>
+      <h4>LETTURA MANUALE</h4>
+      <p>Invia una lettura manuale del sensore per gli strumenti tradizionali, per garantire che i tuoi dati siano sempre accurati e aggiornati.</p>
+      <a href="#" class="service-link">Clicca qui →</a>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔄</div>
+      <h4>VOLTURA CONTRATTO</h4>
+      <p>Hai necessità di trasferire la titolarità del contratto di monitoraggio a un'altra entità o sede? Avvia la procedura da qui.</p>
+      <a href="#" class="service-link">Clicca qui →</a>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📝</div>
+      <h4>NUOVO CONTRATTO</h4>
+      <p>Vuoi attivare un nuovo contratto di servizio per il monitoraggio geofisico presso il tuo sito? Fai richiesta ora.</p>
+      <a href="#" class="service-link">Clicca qui →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SMART DEVICE FEATURE -->
+<section class="feature-section">
+  <div class="feature-visual">
+    <div class="feature-center-icon">📡</div>
+  </div>
+  <div class="feature-content">
+    <div class="section-label">Nuova Generazione</div>
+    <h2>IL <span>DISPOSITIVO</span><br>SMART IOT</h2>
+    <p>I dispositivi Smart IoT di M.A.E. rappresentano l'ultima generazione nella tecnologia di rilevamento geofisico. Progettati per precisione, affidabilità e connettività wireless, ogni unità fornisce dati sotterranei in tempo reale con precisione di livello industriale. Grazie all'elaborazione avanzata del segnale e all'integrazione cloud, i nostri dispositivi consentono un monitoraggio remoto continuo — giorno e notte, in qualsiasi condizione di terreno.</p>
+    <p>Un singolo dispositivo può coprire più parametri di misura: attività sismica, deformazione del suolo, campi elettromagnetici e molto altro — tutti trasmessi in modo sicuro alla tua dashboard online.</p>
+    <a href="#" class="btn-primary">Scopri di più</a>
+  </div>
+</section>
+
+<!-- PROJECT SECTION -->
+<section class="project-section">
+  <div class="project-content">
+    <div class="section-label">Distribuzione in Corso</div>
+    <h2>IL <span>PROGETTO</span></h2>
+    <p>M.A.E. srl sta attualmente distribuendo una rete completa di monitoraggio geofisico IoT in diverse zone d'intervento. Ogni area è dotata di sensori intelligenti in grado di rilevare anomalie ambientali, stress strutturale ed eventi sismici in tempo reale.</p>
+    <p>Le installazioni vengono eseguite per lotti funzionali, al fine di garantire un avanzamento sistematico e omogeneo su tutti i territori designati, con costante verifica tecnica in ogni fase.</p>
+    <a href="#" class="btn-outline">Leggi di più</a>
+  </div>
+  <div class="project-visual">
+    <div class="section-label" style="margin-bottom:16px;">Zone d'Intervento</div>
+    <div class="project-visual-grid">
+      <div class="project-grid-item active">Zona A</div>
+      <div class="project-grid-item">Zona B</div>
+      <div class="project-grid-item active">Zona C</div>
+      <div class="project-grid-item">Zona D</div>
+      <div class="project-grid-item active">Zona E</div>
+      <div class="project-grid-item">Zona F</div>
+      <div class="project-grid-item">Zona G</div>
+      <div class="project-grid-item active">Zona H</div>
+      <div class="project-grid-item">Zona I</div>
+    </div>
+    <div style="margin-top:16px;font-size:11px;color:var(--gray);letter-spacing:1px;">
+      <span style="color:var(--yellow);">■</span> Attiva &nbsp;&nbsp; <span style="color:var(--dark4);">■</span> Programmata
+    </div>
+  </div>
+</section>
+
+<!-- DIGITALIZATION -->
+<section class="digit-section">
+  <div class="section-label">Come funziona</div>
+  <div class="section-title">DIGITALIZZAZIONE SMART</div>
+  <div class="digit-cards">
+    <div class="digit-card">
+      <div class="digit-card-num">01</div>
+      <h4>MONITORAGGIO IN TEMPO REALE</h4>
+      <p>I sensori IoT trasmettono dati geofisici continui tramite protocolli wireless sicuri, consentendo il rilevamento immediato di anomalie, variazioni o eventi critici ovunque nel campo.</p>
+    </div>
+    <div class="digit-card">
+      <div class="digit-card-num">02</div>
+      <h4>ANALISI DEI DATI</h4>
+      <p>I dati raccolti vengono elaborati attraverso la nostra piattaforma cloud, generando profili geofisici accurati, analisi delle tendenze e report di allerta automatizzati per operatori e clienti.</p>
+    </div>
+    <div class="digit-card">
+      <div class="digit-card-num">03</div>
+      <h4>OTTIMIZZAZIONE DELLA RETE</h4>
+      <p>La digitalizzazione consente la riconfigurazione dinamica delle reti di sensori, riducendo i consumi energetici e migliorando la copertura spaziale e la risoluzione delle misurazioni su tutti i siti.</p>
+    </div>
+  </div>
+  <div style="margin-top:32px;">
+    <a href="#" class="btn-outline">Scopri la Nostra Tecnologia</a>
+  </div>
+</section>
+
+<!-- ABOUT / GESTORE -->
+<section class="gestore-section">
+  <div>
+    <div class="section-label">Chi Siamo</div>
+    <h2>L'AZIENDA <span>M.A.E.</span></h2>
+    <p>M.A.E. srl è un'azienda specializzata nella progettazione, produzione e distribuzione di strumenti geofisici avanzati abilitati IoT. La nostra missione è fornire a industrie, istituti di ricerca e autorità pubbliche soluzioni di rilevamento precise, affidabili e connesse per il monitoraggio del sottosuolo e dell'ambiente.</p>
+    <p>Operiamo secondo rigidi standard di qualità e sicurezza, combinando decenni di esperienza geofisica con la connettività digitale più avanzata. Dalle reti sismiche agli array per la deformazione del suolo, offriamo soluzioni di monitoraggio end-to-end su misura per le esigenze dei nostri clienti.</p>
+    <a href="#" class="btn-primary">Visita il Nostro Sito</a>
+  </div>
+  <div>
+    <div class="contact-box">
+      <h3>CONTATTI</h3>
+      <div class="contact-item">
+        <div class="contact-icon">📞</div>
+        <div>
+          <div class="contact-label">Telefono</div>
+          <a href="tel:+390000000000" class="contact-value">+39 00 0000000</a>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">✉️</div>
+        <div>
+          <div class="contact-label">Email</div>
+          <a href="mailto:info@mae-srl.it" class="contact-value">info@mae-srl.it</a>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">💬</div>
+        <div>
+          <div class="contact-label">WhatsApp</div>
+          <a href="#" class="contact-value">+39 00 0000000</a>
+        </div>
+      </div>
+      <div class="hours-note">
+        Orari di supporto: Lun–Ven<br>
+        9:00–13:00 · 14:00–18:00
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo">
+        <div class="nav-logo-badge">MAE</div>
+        <div class="nav-logo-text">M.A.E. SRL</div>
+      </div>
+      <p>Strumenti Geofisici Avanzati IoT. Soluzioni di monitoraggio del sottosuolo precise, connesse e affidabili dalla nostra fondazione.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Informazioni</h5>
+      <ul>
+        <li><a href="#">Il Progetto</a></li>
+        <li><a href="#">Tecnologia</a></li>
+        <li><a href="#">Servizi</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Prodotto</h5>
+      <ul>
+        <li><a href="#">Guida Dispositivo Smart</a></li>
+        <li><a href="#">Vantaggi del Dispositivo</a></li>
+        <li><a href="#">Download</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Supporto</h5>
+      <ul>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Avvisi</a></li>
+        <li><a href="#">Contattaci</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>M.A.E. SRL</span> &nbsp;© 2025 – Strumenti Geofisici Avanzati IoT. Tutti i diritti riservati.
+    <span style="color:var(--gray);">Powered by M.A.E. Engineering</span>
+  </div>

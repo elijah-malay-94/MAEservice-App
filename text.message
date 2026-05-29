@@ -2,3 +2,20 @@ cd ~/desktop/MAEService
 docker compose up --build
 
 ngrok http 80
+
+ Develop a system for matching match names from different platforms
+
+- Add at least 5 betting sites. 
+Choose from 
+Betflag, 
+Eurobet, 
+Bet365, 
+Giocodigitale, 
+Sisal, 
+Snai, 
+888, 
+StatVegas, 
+and Star Casin.
+
+
+Develop a direct betting agent on the site
