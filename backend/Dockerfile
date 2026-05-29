@@ -1,11 +1,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY MaeServiceApi/MaeServiceApi.csproj MaeServiceApi/
-RUN dotnet restore MaeServiceApi/MaeServiceApi.csproj
+COPY MaeServiceApi.csproj .
+RUN dotnet restore MaeServiceApi.csproj
 
-COPY MaeServiceApi/ MaeServiceApi/
-WORKDIR /src/MaeServiceApi
+COPY . .
 RUN dotnet publish -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
