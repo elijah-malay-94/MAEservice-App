@@ -293,8 +293,8 @@ export default function Handbook({ onClose }) {
           <Page n={1} total={8} onClose={onClose} onDownload={handleDownload}>
 
             {/* Cover */}
-            <div style={{ borderBottom: '2px solid #f8d200', paddingBottom: 24, marginBottom: 36 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+            <div style={{ borderBottom: '2px solid #f8d200', paddingBottom: 24, marginBottom: 28 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
                 <div style={{
                   width: 52, height: 52, borderRadius: 10,
                   background: 'linear-gradient(135deg,#1d4ed8,#2563eb)',
@@ -306,13 +306,29 @@ export default function Handbook({ onClose }) {
                   <div style={{ fontSize: 13, color: '#1d4ed8', fontWeight: 700, letterSpacing: '.06em' }}>PLATFORM HANDBOOK</div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 16, fontSize: 10, color: '#64748b', flexWrap: 'wrap' }}>
-                <span>IoT · LoRaWAN · MQTT · Cloud</span>
-                <span>·</span>
-                <span>Full Platform Documentation &amp; Technical Reference</span>
-                <span>·</span>
-                <span>{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+              <p style={{ ...S.p, color:'#475569', marginBottom:12 }}>
+                This handbook is the official technical and operational reference for the MAEService 2.0 platform. It covers every module, the full API surface, authentication, technology stack, and user access controls. Intended for operators, developers, and system administrators.
+              </p>
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                {[['IoT Ready','#10b981'],['LoRaWAN','#3b82f6'],['MQTT 5.0','#10b981'],['REST API','#0ea5e9'],['JWT Auth','#8b5cf6'],['Cloud Hosted','#f59e0b']].map(([l,c])=>(
+                  <span key={l} style={S.badge(c)}>{l}</span>
+                ))}
               </div>
+            </div>
+
+            {/* Platform at a Glance */}
+            <div style={{ ...S.grid2, marginBottom:20 }}>
+              {[
+                { v:'6', l:'Dashboard modules', c:'#3b82f6' },
+                { v:'12', l:'REST API endpoints', c:'#10b981' },
+                { v:'3', l:'User roles / access levels', c:'#8b5cf6' },
+                { v:'100', l:'Max MQTT messages in memory', c:'#f59e0b' },
+              ].map(x=>(
+                <div key={x.l} style={{ ...S.card, display:'flex', alignItems:'center', gap:12 }}>
+                  <div style={{ fontSize:28, fontWeight:900, color:x.c, fontFamily:'monospace', lineHeight:1 }}>{x.v}</div>
+                  <div style={{ fontSize:10, color:'#64748b' }}>{x.l}</div>
+                </div>
+              ))}
             </div>
 
             <Section icon="◈" title="Table of Contents">
@@ -330,87 +346,143 @@ export default function Handbook({ onClose }) {
           {/* ══ PAGE 2 — Overview + Auth ══ */}
           <Page n={2} total={8} onDownload={handleDownload}>
             <Section icon="◉" title="1 · Project Overview">
-              <InfoBox>MAEService 2.0 is a real-time IoT monitoring and management platform designed for industrial and enterprise environments. It provides live visibility into connected devices, MQTT telemetry streams, LoRaWAN gateways, and system health — all from a single responsive dashboard.</InfoBox>
-              <p style={S.p}>The platform follows a <strong style={{ color:'#1d4ed8' }}>client-server architecture</strong>: a React frontend communicates with a .NET 10 REST API over HTTPS. The backend ingests MQTT messages from a public broker (HiveMQ), persists records to SQL Server or an in-memory store, and exposes versioned REST endpoints under <code style={{ color:'#0369a1' }}>/api/v2</code>.</p>
+              <InfoBox>MAEService 2.0 is a real-time IoT monitoring and management platform for industrial and enterprise environments. It delivers live visibility into connected devices, MQTT telemetry streams, LoRaWAN gateways, and system health — all from a single responsive dashboard accessible from any browser.</InfoBox>
+              <p style={S.p}>The platform is built on a <strong style={{ color:'#1d4ed8' }}>client-server architecture</strong>. A React 19 SPA communicates with a .NET 10 REST API over HTTPS. The backend continuously ingests MQTT messages from a HiveMQ broker, persists telemetry records to SQL Server (or an in-memory store for development), and exposes versioned REST endpoints under <code style={{ color:'#0369a1' }}>/api/v2</code>. The frontend polls these endpoints every 3 seconds for live data updates without WebSocket overhead.</p>
               <div style={S.grid2}>
-                <div style={S.card}><div style={S.cardTitle}>Frontend</div><p style={{ ...S.p, margin:0 }}>React 19 SPA with Vite build tooling, React Router v7 for client-side routing, and Axios for HTTP. All UI is custom CSS-in-JS — no component library.</p></div>
-                <div style={S.card}><div style={S.cardTitle}>Backend</div><p style={{ ...S.p, margin:0 }}>.NET 10 ASP.NET Core Web API with JWT authentication, Entity Framework Core, and MQTTnet for broker connectivity.</p></div>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Frontend Layer</div>
+                  <ul style={S.ul}>
+                    <li style={S.li}>React 19 SPA — component-based UI with hooks</li>
+                    <li style={S.li}>Vite — sub-second HMR dev server, optimized production builds</li>
+                    <li style={S.li}>React Router v7 — client-side routing, route guards</li>
+                    <li style={S.li}>Axios — HTTP client with request/response interceptors</li>
+                    <li style={S.li}>Pure CSS-in-JS — no third-party component library</li>
+                  </ul>
+                </div>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Backend Layer</div>
+                  <ul style={S.ul}>
+                    <li style={S.li}>.NET 10 ASP.NET Core — REST API + background services</li>
+                    <li style={S.li}>JWT Bearer auth — HS256 signed tokens, 24h expiry</li>
+                    <li style={S.li}>Entity Framework Core — SQL Server + InMemory providers</li>
+                    <li style={S.li}>MQTTnet 5.1 — connects to HiveMQ broker, pub/sub</li>
+                    <li style={S.li}>OpenAPI — auto-generated Swagger documentation</li>
+                  </ul>
+                </div>
               </div>
             </Section>
 
             <Section icon="🔐" title="2 · Authentication">
-              <p style={S.p}>All routes are protected. On first load the app checks <code style={{ color:'#0369a1' }}>localStorage</code> for a saved JWT token. If absent the user is redirected to the Login page. Upon successful login the token, username, and role are stored in localStorage and reloaded on refresh.</p>
-              <div style={S.warnBox}><p style={{ ...S.p, margin:0, color:'#92400e' }}>⚠ Demo credentials — for testing only. Change before production deployment.</p></div>
+              <p style={S.p}>All API routes and frontend pages are protected by JWT authentication. On first load, the app reads <code style={{ color:'#0369a1' }}>localStorage</code> for a cached token. If none is found, the user is redirected to the login page. After a successful login, the token, username, and role are saved to localStorage and rehydrated on every page refresh — no re-login required until the token expires.</p>
+              <div style={S.warnBox}><p style={{ ...S.p, margin:0, color:'#92400e' }}>⚠ The credentials below are demo accounts for testing only. Replace the JWT secret key and remove default accounts before any production deployment.</p></div>
               <table style={S.table}>
-                <thead><tr><th style={S.th}>Username</th><th style={S.th}>Password</th><th style={S.th}>Role</th><th style={S.th}>Permissions</th></tr></thead>
+                <thead><tr><th style={S.th}>Username</th><th style={S.th}>Password</th><th style={S.th}>Role</th><th style={S.th}>Access Level</th></tr></thead>
                 <tbody>
-                  <Row label="admin"    value="admin123"    desc="Full read/write access to all modules" />
-                  <Row label="operator" value="operator123" desc="Read access + device control" />
-                  <Row label="viewer"   value="viewer123"   desc="Read-only access to dashboard and reports" />
+                  <Row label="admin"    value="admin123"    desc="Full read/write access to all modules and admin panel" />
+                  <Row label="operator" value="operator123" desc="Read access to all views + device control actions" />
+                  <Row label="viewer"   value="viewer123"   desc="Read-only access — dashboard and reports only" />
                 </tbody>
               </table>
-              <p style={S.p}>The backend issues a signed JWT (HS256) with a 24-hour expiry. The secret key is configured in <code style={{ color:'#0369a1' }}>appsettings.json</code> under <code style={{ color:'#0369a1' }}>Jwt:Key</code>.</p>
+              <p style={S.p}>The backend signs tokens using HMAC-SHA256 (<strong>HS256</strong>) with a configurable secret set in <code style={{ color:'#0369a1' }}>appsettings.json → Jwt:Key</code>. Token expiry is 24 hours. All protected endpoints return <code style={{ color:'#0369a1' }}>401 Unauthorized</code> if the token is absent or invalid.</p>
             </Section>
           </Page>
 
           {/* ══ PAGE 3 — Dashboard ══ */}
           <Page n={3} total={8} onDownload={handleDownload}>
             <Section icon="◈" title="3 · Dashboard">
-              <InfoBox>The Dashboard is the landing page after login. It auto-refreshes every 3 seconds by polling six REST endpoints and renders live KPIs, health gauges, alert feeds, node status, and the raw MQTT message stream.</InfoBox>
+              <InfoBox>The Dashboard is the main landing page after login. It auto-refreshes every 3 seconds by polling six REST endpoints in parallel and renders all live data without requiring a page reload. All widgets update in-place so operators can monitor continuously without interruption.</InfoBox>
+
               <h3 style={S.h3}>3.1 KPI Cards</h3>
-              <p style={S.p}>Four cards at the top display the most critical real-time metrics. Each includes a sparkline chart (SVG line + area fill) showing recent trend data.</p>
+              <p style={S.p}>Four cards across the top row show the most critical platform metrics at a glance. Each card includes a <strong>sparkline trend chart</strong> (SVG line + area gradient) built from the last 20 data points, so you can see whether a metric is rising or falling without needing a separate chart view.</p>
               <table style={S.table}>
-                <thead><tr><th style={S.th}>KPI</th><th style={S.th}>Unit</th><th style={S.th}>Source endpoint</th></tr></thead>
+                <thead><tr><th style={S.th}>KPI</th><th style={S.th}>Unit</th><th style={S.th}>Source</th><th style={S.th}>Notes</th></tr></thead>
                 <tbody>
-                  <Row label="MQTT Rate"    value="msg/s"  desc="GET /api/v2/dashboard/kpi → mqttRate" />
-                  <Row label="API Requests" value="req/s"  desc="GET /api/v2/dashboard/kpi → apiRequests" />
-                  <Row label="Avg Latency"  value="ms"     desc="GET /api/v2/dashboard/kpi → avgLatency" />
-                  <Row label="Active Nodes" value="count"  desc="GET /api/v2/dashboard/kpi → activeNodes" />
+                  <Row label="MQTT Rate"    value="msg/s"  desc="dashboard/kpi → mqttRate"    />
+                  <Row label="API Requests" value="req/s"  desc="dashboard/kpi → apiRequests" />
+                  <Row label="Avg Latency"  value="ms"     desc="dashboard/kpi → avgLatency"  />
+                  <Row label="Active Nodes" value="count"  desc="dashboard/kpi → activeNodes" />
                 </tbody>
               </table>
+
               <h3 style={S.h3}>3.2 System Health Gauges</h3>
-              <p style={S.p}>SVG arc-progress gauges for CPU, Memory, Disk, and Network utilization. Color transitions from green → amber → red. Data from <code style={{ color:'#0369a1' }}>GET /api/v2/dashboard/health</code>.</p>
+              <p style={S.p}>Four SVG arc-progress gauges display server-side resource utilization. The arc fill color transitions <span style={{ color:'#10b981', fontWeight:700 }}>green</span> (0–60%) → <span style={{ color:'#f59e0b', fontWeight:700 }}>amber</span> (60–80%) → <span style={{ color:'#ef4444', fontWeight:700 }}>red</span> (80–100%). Values are read from <code style={{ color:'#0369a1' }}>GET /api/v2/dashboard/health</code>.</p>
+              <div style={S.grid2}>
+                {[['CPU','Current processor load across all cores'],['Memory','RAM consumption of the API process'],['Disk','Storage usage on the host volume'],['Network','Outbound bandwidth utilization %']].map(([g,d])=>(
+                  <div key={g} style={{ ...S.card, padding:'8px 12px' }}>
+                    <div style={S.cardTitle}>{g}</div>
+                    <p style={{ ...S.p, margin:0, fontSize:10 }}>{d}</p>
+                  </div>
+                ))}
+              </div>
+
               <h3 style={S.h3}>3.3 Weekly Message Bar Chart</h3>
-              <p style={S.p}>An SVG bar chart showing daily message counts for the current week. Includes summary stats: Total, Delivered, Failed, and Average per hour.</p>
+              <p style={S.p}>An SVG bar chart rendering daily message counts for the current ISO week (Mon–Sun). Below the chart, four summary stats are shown: <strong>Total</strong> messages ingested, <strong>Delivered</strong> (processed successfully), <strong>Failed</strong> (parse or write errors), and <strong>Average</strong> messages per hour. Source: <code style={{ color:'#0369a1' }}>GET /api/v2/dashboard/messages</code>.</p>
+
               <h3 style={S.h3}>3.4 System Alerts</h3>
-              <p style={S.p}>A live feed showing the latest 10 alerts with timestamp and severity. Levels: <span style={S.badge('#ef4444')}>critical</span><span style={S.badge('#f59e0b')}>warning</span><span style={S.badge('#10b981')}>info</span><span style={S.badge('#3b82f6')}>success</span></p>
+              <p style={S.p}>A live feed of the latest 10 platform alerts, newest first. Each row shows a timestamp, description, and a color-coded severity badge: <span style={S.badge('#ef4444')}>critical</span><span style={S.badge('#f59e0b')}>warning</span><span style={S.badge('#10b981')}>info</span><span style={S.badge('#3b82f6')}>success</span>. Source: <code style={{ color:'#0369a1' }}>GET /api/v2/dashboard/alerts</code>.</p>
+
               <h3 style={S.h3}>3.5 Node Status Grid</h3>
-              <p style={S.p}>A 2-column card grid of all registered devices and gateways with online/offline status, msg/s rate, and protocol badge (MQTT or LoRaWAN).</p>
+              <p style={S.p}>A 2-column grid of compact cards — one per registered device or gateway. Each card shows the node name, current status badge, live message rate (msg/s), and the protocol label (<span style={S.badge('#10b981')}>MQTT</span> or <span style={S.badge('#3b82f6')}>LoRaWAN</span>). Source: <code style={{ color:'#0369a1' }}>GET /api/v2/dashboard/nodes</code>.</p>
+
               <h3 style={S.h3}>3.6 Live MQTT Feed</h3>
-              <p style={S.p}>Scrolling table of raw broker messages: Device ID, timestamp, temperature (°C), humidity (%), battery (%). Source: <code style={{ color:'#0369a1' }}>GET /api/v2/mqtt/messages</code>.</p>
+              <p style={S.p}>A scrolling table of the most recent raw MQTT payloads received by the broker. Columns: <strong>Device ID</strong>, <strong>Timestamp</strong>, <strong>Temperature (°C)</strong>, <strong>Humidity (%)</strong>, <strong>Battery (%)</strong>. Up to 100 records are held in server memory and returned by <code style={{ color:'#0369a1' }}>GET /api/v2/mqtt/messages</code>. Oldest records are evicted as new ones arrive.</p>
             </Section>
           </Page>
 
           {/* ══ PAGE 4 — Devices, Network, Data Engine ══ */}
           <Page n={4} total={8} onDownload={handleDownload}>
             <Section icon="⬡" title="4 · Devices">
-              <InfoBox>Full inventory of all IoT endpoints. Devices are auto-created by the MQTT service when a new device ID is first seen in an incoming message.</InfoBox>
-              <p style={S.p}>Features: device listing with status badges, last-seen timestamps, protocol labeling, and telemetry summary. Source: <code style={{ color:'#0369a1' }}>GET /api/v2/devices</code>.</p>
+              <InfoBox>The Devices page is the full inventory of all registered IoT endpoints. Devices are auto-created by the backend MqttService the first time a previously unknown device ID appears in an incoming MQTT message — no manual registration required.</InfoBox>
+              <p style={S.p}>The list view shows each device with status badges, last-seen timestamps, live message rate, and protocol label. Operators can click any device to see its detailed telemetry history. Source: <code style={{ color:'#0369a1' }}>GET /api/v2/devices</code>.</p>
               <div style={S.grid2}>
                 <div style={S.card}>
-                  <div style={S.cardTitle}>Device Fields</div>
-                  <ul style={S.ul}>{['Device ID (unique)','Name / Label','Status (online/offline/warning)','Protocol (MQTT/LoRaWAN)','Last seen timestamp','Messages per second','Signal strength'].map(f=><li key={f} style={S.li}>{f}</li>)}</ul>
+                  <div style={S.cardTitle}>Device Record Fields</div>
+                  <ul style={S.ul}>{['Device ID — unique identifier from MQTT topic','Name / Label — human-readable alias','Status badge — online / warning / offline','Protocol — MQTT or LoRaWAN','Last seen — ISO timestamp of last message','Messages/s — rolling throughput rate','Signal strength — RSSI (LoRaWAN only)'].map(f=><li key={f} style={S.li}>{f}</li>)}</ul>
                 </div>
                 <div style={S.card}>
-                  <div style={S.cardTitle}>Status Definitions</div>
+                  <div style={S.cardTitle}>Status Thresholds</div>
                   <ul style={S.ul}>
-                    <li style={{ ...S.li, color:'#10b981' }}>Online — active communication in last 30s</li>
-                    <li style={{ ...S.li, color:'#f59e0b' }}>Warning — delayed messages or weak signal</li>
-                    <li style={{ ...S.li, color:'#ef4444' }}>Offline — no messages for 5 min+</li>
+                    <li style={{ ...S.li, color:'#10b981', fontWeight:600 }}>Online — message received within last 30 s</li>
+                    <li style={{ ...S.li, color:'#f59e0b', fontWeight:600 }}>Warning — no message for 30 s–5 min, or RSSI below –110 dBm</li>
+                    <li style={{ ...S.li, color:'#ef4444', fontWeight:600 }}>Offline — silent for more than 5 minutes</li>
+                  </ul>
+                  <p style={{ ...S.p, margin:'10px 0 0', fontSize:10 }}>Status is re-evaluated on every 3-second poll cycle. Devices transition states automatically as messages arrive or stop.</p>
+                </div>
+              </div>
+            </Section>
+
+            <Section icon="◎" title="5 · Network">
+              <InfoBox>The Network page provides a topology view of all LoRaWAN gateways and their downstream sensor nodes. It helps administrators identify coverage gaps, signal degradation, and gateway outages at a glance.</InfoBox>
+              <p style={S.p}>Each gateway is displayed as a card showing its IP address, geographic region, number of connected devices, signal quality score (%), and current uptime. Devices that drop below acceptable signal thresholds are highlighted. Source: <code style={{ color:'#0369a1' }}>GET /api/v2/network</code>.</p>
+              <div style={S.grid2}>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Gateway Card Fields</div>
+                  <ul style={S.ul}>{['Gateway ID & Name','IP Address / Hostname','Geographic Region','Connected device count','Signal Quality % (avg RSSI)','Uptime (days : hours)','Connectivity status badge'].map(f=><li key={f} style={S.li}>{f}</li>)}</ul>
+                </div>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Signal Quality Ranges</div>
+                  <ul style={S.ul}>
+                    <li style={{ ...S.li, color:'#10b981' }}>Excellent — RSSI above –90 dBm</li>
+                    <li style={{ ...S.li, color:'#0ea5e9' }}>Good — –90 to –100 dBm</li>
+                    <li style={{ ...S.li, color:'#f59e0b' }}>Fair — –100 to –110 dBm</li>
+                    <li style={{ ...S.li, color:'#ef4444' }}>Poor — below –110 dBm</li>
                   </ul>
                 </div>
               </div>
             </Section>
-            <Section icon="◎" title="5 · Network">
-              <InfoBox>Topology view of LoRaWAN gateways and downstream devices. Shows gateway health, connected device counts, signal quality, and uptime statistics.</InfoBox>
-              <p style={S.p}>Source: <code style={{ color:'#0369a1' }}>GET /api/v2/network</code>. Each gateway card shows its IP, region, device count, and connectivity status.</p>
-            </Section>
+
             <Section icon="◉" title="6 · Data Engine">
-              <InfoBox>Exposes the pipeline that processes raw MQTT payloads into structured telemetry records. Shows ingest rate, queue depth, error rate, and storage consumption.</InfoBox>
-              <p style={S.p}>The backend <strong style={{ color:'#1d4ed8' }}>MqttService</strong> subscribes to MQTT topics, parses JSON payloads, and writes <code style={{ color:'#0369a1' }}>TelemetryRecord</code> entities to the database. Up to 100 recent messages are kept in memory.</p>
-              <div style={S.card}>
-                <div style={S.cardTitle}>Subscribed MQTT Topics</div>
-                <ul style={S.ul}>{['mae/devices/+/telemetry','mae/gateways/+/status','mae/sensors/+/data','sensors/+/data'].map(t=><li key={t} style={{ ...S.li, color:'#0369a1', fontFamily:'monospace' }}>{t}</li>)}</ul>
+              <InfoBox>The Data Engine page visualizes the MQTT ingest pipeline — the real-time path data takes from the broker into persistent storage. It exposes pipeline health metrics: ingest rate, queue depth, error rate, and storage consumption.</InfoBox>
+              <p style={S.p}>The backend <strong style={{ color:'#1d4ed8' }}>MqttService</strong> runs as a hosted background service. It maintains a persistent connection to the HiveMQ broker, subscribes to wildcard topics, and processes each message through a parse → validate → persist pipeline. Up to 100 records are cached in memory for the live feed.</p>
+              <div style={S.grid2}>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Subscribed MQTT Topics</div>
+                  <ul style={S.ul}>{['mae/devices/+/telemetry','mae/gateways/+/status','mae/sensors/+/data','sensors/+/data'].map(t=><li key={t} style={{ ...S.li, color:'#0369a1', fontFamily:'monospace', fontSize:10 }}>{t}</li>)}</ul>
+                </div>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Pipeline Stages</div>
+                  <ul style={S.ul}>{['1. Receive — broker delivers message','2. Parse — JSON payload deserialized','3. Validate — required fields checked','4. Auto-register — new device IDs added','5. Persist — EF Core writes to SQL Server','6. Cache — stored in memory ring buffer'].map(s=><li key={s} style={S.li}>{s}</li>)}</ul>
+                </div>
               </div>
             </Section>
           </Page>
@@ -418,26 +490,52 @@ export default function Handbook({ onClose }) {
           {/* ══ PAGE 5 — API Monitor, Architecture, Settings ══ */}
           <Page n={5} total={8} onDownload={handleDownload}>
             <Section icon="⊞" title="7 · API Monitor">
-              <InfoBox>Live view of backend endpoint performance: request volume, average response times, error rates, and per-endpoint breakdowns.</InfoBox>
-              <p style={S.p}>Useful for diagnosing latency spikes before they impact users. Metrics are polled from <code style={{ color:'#0369a1' }}>GET /api/v2/monitor/stats</code>.</p>
-            </Section>
-            <Section icon="⬙" title="8 · Architecture">
-              <InfoBox>Visual schematic of the full system — from physical sensors, through LoRaWAN gateways and the MQTT broker, up to the .NET API and React frontend.</InfoBox>
-              <p style={S.p}>A static informational view helping operators and new team members understand how data flows through the platform.</p>
+              <InfoBox>The API Monitor page provides a live view of backend endpoint performance. It is designed to surface latency regressions, error spikes, and traffic anomalies before they escalate into user-visible incidents.</InfoBox>
+              <p style={S.p}>Metrics are polled from <code style={{ color:'#0369a1' }}>GET /api/v2/monitor/stats</code> on the same 3-second cycle as the Dashboard. The page shows an aggregate summary at the top and a per-endpoint breakdown table below.</p>
               <div style={S.grid2}>
                 <div style={S.card}>
-                  <div style={S.cardTitle}>Data Flow</div>
-                  <ul style={S.ul}>{['Sensor → LoRaWAN gateway','Gateway → MQTT broker (HiveMQ)','Broker → .NET MqttService','MqttService → SQL Server / EF Core','API → React frontend (Axios)','React → Browser (Vite SPA)'].map(f=><li key={f} style={S.li}>{f}</li>)}</ul>
+                  <div style={S.cardTitle}>Aggregate Metrics</div>
+                  <ul style={S.ul}>{['Total requests per second (system-wide)','Average response time (p50 latency, ms)','95th-percentile latency (p95, ms)','Global error rate (4xx + 5xx responses %)','Active concurrent connections'].map(m=><li key={m} style={S.li}>{m}</li>)}</ul>
                 </div>
                 <div style={S.card}>
-                  <div style={S.cardTitle}>Deployment</div>
-                  <ul style={S.ul}>{['Frontend hosted on Netlify (CDN)','Backend containerized via Docker','Database: Azure SQL or local SQL Server','MQTT Broker: HiveMQ Cloud or self-hosted','CORS configured for Netlify + localhost'].map(f=><li key={f} style={S.li}>{f}</li>)}</ul>
+                  <div style={S.cardTitle}>Per-Endpoint Breakdown</div>
+                  <ul style={S.ul}>{['HTTP method + path','Request count (last 60 s)','Average latency (ms)','Success rate (%)','Last called timestamp','Status code distribution'].map(m=><li key={m} style={S.li}>{m}</li>)}</ul>
                 </div>
               </div>
             </Section>
+
+            <Section icon="⬙" title="8 · Architecture">
+              <InfoBox>The Architecture page is a static informational schematic of the entire MAEService 2.0 system — from physical edge sensors through the LoRaWAN radio network, cloud broker, backend API, and up to the browser-based frontend.</InfoBox>
+              <p style={S.p}>This view is primarily intended for onboarding new developers and operators. It shows every major component and the direction of data flow, helping teams reason about where a problem might originate when debugging end-to-end issues.</p>
+              <div style={S.grid2}>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>End-to-End Data Flow</div>
+                  <ul style={S.ul}>{['1. MAE Sensor device (temperature / humidity / battery)','2. LoRaWAN radio transmission to nearest gateway','3. Gateway forwards payload to HiveMQ MQTT broker (TLS)','4. .NET MqttService receives and parses JSON message','5. EF Core writes TelemetryRecord to SQL Server','6. REST API serves data to React frontend via Axios','7. Browser renders live dashboard — refresh every 3 s'].map(f=><li key={f} style={S.li}>{f}</li>)}</ul>
+                </div>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Deployment Topology</div>
+                  <ul style={S.ul}>{['React SPA → Netlify CDN (global edge)','ASP.NET Core API → Docker container','Database → Azure SQL or local SQL Server','MQTT Broker → HiveMQ Cloud (managed)','CORS origins → Netlify domain + localhost','Secrets → environment variables / Azure Key Vault'].map(f=><li key={f} style={S.li}>{f}</li>)}</ul>
+                </div>
+              </div>
+            </Section>
+
             <Section icon="✦" title="9 · Settings">
-              <p style={S.p}>The Settings page allows authorized users (Admin role) to configure platform parameters such as MQTT broker address, polling intervals, alert thresholds, and notification preferences.</p>
-              <p style={S.p}>Changes are persisted via <code style={{ color:'#0369a1' }}>POST /api/v2/settings</code> and take effect without restarting the application.</p>
+              <p style={S.p}>The Settings page is accessible only to users with the <strong style={{ color:'#ef4444' }}>Admin</strong> role. It provides a UI for configuring platform behavior without requiring a redeployment. Changes take effect immediately and are persisted via <code style={{ color:'#0369a1' }}>POST /api/v2/settings</code>.</p>
+              <div style={S.grid2}>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Configurable Parameters</div>
+                  <ul style={S.ul}>{['MQTT broker host & port','MQTT username / password / TLS toggle','Dashboard polling interval (seconds)','Alert severity thresholds (CPU, memory)','Data retention period (days)','Notification email addresses'].map(p=><li key={p} style={S.li}>{p}</li>)}</ul>
+                </div>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Access Control</div>
+                  <ul style={S.ul}>
+                    <li style={{ ...S.li, color:'#10b981' }}>Admin — can view and modify all settings</li>
+                    <li style={{ ...S.li, color:'#ef4444' }}>Operator — settings page hidden from navigation</li>
+                    <li style={{ ...S.li, color:'#ef4444' }}>Viewer — settings page hidden from navigation</li>
+                  </ul>
+                  <p style={{ ...S.p, margin:'8px 0 0', fontSize:10 }}>Unauthorized POST requests to /api/v2/settings return 403 Forbidden regardless of token validity.</p>
+                </div>
+              </div>
             </Section>
           </Page>
 
@@ -524,42 +622,69 @@ export default function Handbook({ onClose }) {
           {/* ══ PAGE 8 — Roles + Footer ══ */}
           <Page n={8} total={8} onDownload={handleDownload}>
             <Section icon="👤" title="12 · User Roles &amp; Permissions">
+              <InfoBox>MAEService 2.0 uses Role-Based Access Control (RBAC). Every authenticated user is assigned exactly one role. The role is embedded in the JWT claims and validated on the backend for every protected API call — client-side navigation guards alone are not the security boundary.</InfoBox>
+
+              <h3 style={S.h3}>12.1 Permission Matrix</h3>
               <table style={S.table}>
                 <thead>
                   <tr>
                     <th style={S.th}>Role</th>
                     <th style={S.th}>Dashboard</th>
                     <th style={S.th}>Devices</th>
+                    <th style={S.th}>Network</th>
                     <th style={S.th}>Settings</th>
-                    <th style={S.th}>Admin</th>
+                    <th style={S.th}>Admin Panel</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td style={{ ...S.td, color:'#ef4444', fontWeight:700 }}>Admin</td>
-                    <td style={{ ...S.td, color:'#10b981' }}>✓ Read + Write</td>
-                    <td style={{ ...S.td, color:'#10b981' }}>✓ Read + Write</td>
-                    <td style={{ ...S.td, color:'#10b981' }}>✓ Full access</td>
+                    <td style={{ ...S.td, color:'#10b981' }}>✓ Full</td>
+                    <td style={{ ...S.td, color:'#10b981' }}>✓ Read + Write + Delete</td>
+                    <td style={{ ...S.td, color:'#10b981' }}>✓ Full</td>
+                    <td style={{ ...S.td, color:'#10b981' }}>✓ Full</td>
                     <td style={{ ...S.td, color:'#10b981' }}>✓ User management</td>
                   </tr>
                   <tr>
                     <td style={{ ...S.td, color:'#f59e0b', fontWeight:700 }}>Operator</td>
                     <td style={{ ...S.td, color:'#10b981' }}>✓ Read</td>
-                    <td style={{ ...S.td, color:'#10b981' }}>✓ Control</td>
-                    <td style={{ ...S.td, color:'#ef4444' }}>✗ No access</td>
+                    <td style={{ ...S.td, color:'#10b981' }}>✓ Read + Control</td>
+                    <td style={{ ...S.td, color:'#10b981' }}>✓ Read</td>
+                    <td style={{ ...S.td, color:'#ef4444' }}>✗ Hidden</td>
                     <td style={{ ...S.td, color:'#ef4444' }}>✗ No access</td>
                   </tr>
                   <tr>
                     <td style={{ ...S.td, color:'#3b82f6', fontWeight:700 }}>Viewer</td>
                     <td style={{ ...S.td, color:'#10b981' }}>✓ Read only</td>
                     <td style={{ ...S.td, color:'#10b981' }}>✓ View only</td>
-                    <td style={{ ...S.td, color:'#ef4444' }}>✗ No access</td>
+                    <td style={{ ...S.td, color:'#10b981' }}>✓ View only</td>
+                    <td style={{ ...S.td, color:'#ef4444' }}>✗ Hidden</td>
                     <td style={{ ...S.td, color:'#ef4444' }}>✗ No access</td>
                   </tr>
                 </tbody>
               </table>
-            </Section>
 
+              <h3 style={S.h3}>12.2 Role Assignment</h3>
+              <p style={S.p}>Roles are assigned at account creation time by an Admin user. The role string is stored in the user record and included in the JWT payload on every successful login. To change a user's role, an Admin must update the account — the user's existing token remains valid with the old role until it expires (24 hours).</p>
+
+              <h3 style={S.h3}>12.3 Security Best Practices</h3>
+              <div style={S.grid2}>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Before Going to Production</div>
+                  <ul style={S.ul}>{['Replace Jwt:Key with a 256-bit random secret','Remove all default demo accounts','Enable HTTPS-only in ASP.NET Core','Set SameSite=Strict on auth cookies if used','Configure CORS to only allow known origins'].map(p=><li key={p} style={S.li}>{p}</li>)}</ul>
+                </div>
+                <div style={S.card}>
+                  <div style={S.cardTitle}>Runtime Protections</div>
+                  <ul style={S.ul}>{['All API endpoints validate JWT on every request','Role claims verified server-side, not client-side','Token expiry enforced — no sliding sessions','401 returned for invalid/expired tokens','403 returned for insufficient role'].map(p=><li key={p} style={S.li}>{p}</li>)}</ul>
+                </div>
+              </div>
+
+              <div style={{ marginTop:24, padding:'12px 16px', background:'#f8fafc', borderRadius:8, borderTop:'2px solid #ef4444', textAlign:'center' }}>
+                <p style={{ ...S.p, margin:0, fontSize:10, color:'#64748b' }}>
+                  MAEService 2.0 · Platform Handbook · Confidential · {new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' })}
+                </p>
+              </div>
+            </Section>
           </Page>
 
         </div>{/* /viewer */}
