@@ -18,7 +18,7 @@ const techBadges = [
   { t: 'MQTT',     c: '#10b981' },
 ]
 
-export default function Sidebar({ onClose }) {
+export default function Sidebar({ onClose, onHandbook }) {
   const navigate  = useNavigate()
   const location  = useLocation()
   const [open, setOpen] = useState(true)
@@ -261,6 +261,47 @@ export default function Sidebar({ onClose }) {
           )
         })}
       </nav>
+
+      {/* ── Handbook Button ── */}
+      <div style={{
+        position: 'relative', zIndex: 2,
+        padding: open ? '0 12px 10px' : '0 6px 10px',
+      }}>
+        <button
+          onClick={() => { if (onHandbook) onHandbook(); if (onClose) onClose() }}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: open ? '9px 14px' : '10px',
+            justifyContent: open ? 'flex-start' : 'center',
+            background: 'rgba(37,99,235,0.12)',
+            border: '1px solid #2563eb44',
+            borderRadius: 8,
+            color: '#60a5fa',
+            cursor: 'pointer',
+            fontSize: 11,
+            fontFamily: 'monospace',
+            transition: 'all 0.2s',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(37,99,235,0.25)'
+            e.currentTarget.style.borderColor = '#3b82f6'
+            e.currentTarget.style.boxShadow = '0 0 12px #2563eb44'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'rgba(37,99,235,0.12)'
+            e.currentTarget.style.borderColor = '#2563eb44'
+            e.currentTarget.style.boxShadow = 'none'
+          }}
+        >
+          <span style={{ fontSize: 14, flexShrink: 0 }}>📖</span>
+          {open && <span style={{ fontWeight: 700 }}>Handbook</span>}
+        </button>
+      </div>
 
       {/* ── Bottom Info ── */}
       {open && (

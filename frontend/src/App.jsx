@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import Ticker from './components/Ticker'
+import Handbook from './components/Handbook'
 import Login       from './pages/Login'
 import Dashboard    from './pages/Dashboard'
 import Devices      from './pages/Devices'
@@ -14,6 +15,7 @@ import Settings     from './pages/Settings'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [handbookOpen, setHandbookOpen] = useState(false)
   const [user, setUser] = useState(() => {
     const token = localStorage.getItem('mae_token')
     const username = localStorage.getItem('mae_username')
@@ -47,7 +49,10 @@ export default function App() {
       )}
 
       <div className={`sidebar-wrap ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        <Sidebar onClose={() => setSidebarOpen(false)} />
+        <Sidebar
+          onClose={() => setSidebarOpen(false)}
+          onHandbook={() => { setHandbookOpen(true); setSidebarOpen(false) }}
+        />
       </div>
 
       <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden', minWidth:0 }}>
@@ -70,6 +75,8 @@ export default function App() {
           </Routes>
         </div>
       </div>
+
+      {handbookOpen && <Handbook onClose={() => setHandbookOpen(false)} />}
 
       <style>{`
         .sidebar-wrap { flex-shrink:0; height:100vh; z-index:50; }
