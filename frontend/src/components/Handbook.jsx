@@ -256,15 +256,17 @@ export default function Handbook({ onClose }) {
     style.id = '__handbook_print__'
     style.textContent = `
       @media print {
+        @page { size: A4; margin: 15mm; }
         body > * { display: none !important; }
         #handbook-print-root { display: block !important; }
         #handbook-print-root {
-          position: fixed; inset: 0; z-index: 99999;
           background: #fff; color: #111;
           font-family: 'JetBrains Mono', 'Fira Code', monospace;
-          padding: 32px; overflow: visible;
           font-size: 10pt; line-height: 1.6;
         }
+        .hb-page { break-after: page; page-break-after: always; padding-bottom: 8mm; }
+        .hb-page:last-child { break-after: auto; page-break-after: auto; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       }
     `
     document.head.appendChild(style)
@@ -572,108 +574,222 @@ export default function Handbook({ onClose }) {
   )
 }
 
-function buildPrintHTML() {
-  return `
-  <div style="font-family:'JetBrains Mono',monospace;color:#111;max-width:800px;margin:0 auto;padding:20px">
-    <div style="text-align:center;border-bottom:3px solid #1d4ed8;padding-bottom:20px;margin-bottom:28px">
-      <div style="display:inline-block;width:50px;height:50px;border-radius:10px;background:#1d4ed8;color:#fff;font-size:26px;font-weight:900;line-height:50px;text-align:center;margin-bottom:10px">M</div>
-      <h1 style="margin:0;font-size:22px;color:#111">MAEService 2.0 — Platform Handbook</h1>
-      <p style="margin:4px 0 0;font-size:11px;color:#1d4ed8;letter-spacing:.15em">FULL PLATFORM DOCUMENTATION &amp; TECHNICAL REFERENCE</p>
-      <p style="margin:6px 0 0;font-size:10px;color:#666">Generated ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+const PRINT_COLORS = [
+  { main: '#f8d200', tc: '#1a1a1a', label: 'COVER · TABLE OF CONTENTS' },
+  { main: '#3b82f6', tc: '#ffffff', label: 'OVERVIEW · AUTHENTICATION' },
+  { main: '#10b981', tc: '#ffffff', label: 'DASHBOARD' },
+  { main: '#8b5cf6', tc: '#ffffff', label: 'DEVICES · NETWORK · DATA ENGINE' },
+  { main: '#f59e0b', tc: '#1a1a1a', label: 'API MONITOR · ARCHITECTURE · SETTINGS' },
+  { main: '#6366f1', tc: '#ffffff', label: 'TECHNOLOGY STACK' },
+  { main: '#0ea5e9', tc: '#ffffff', label: 'API REFERENCE' },
+  { main: '#ef4444', tc: '#ffffff', label: 'USER ROLES & PERMISSIONS' },
+]
+
+function pBar(idx, pageNum, total) {
+  const c = PRINT_COLORS[idx]
+  return `<div style="background:${c.main};padding:9px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:22px;height:22px;border-radius:5px;background:rgba(0,0,0,0.22);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;line-height:22px;text-align:center;">M</div>
+      <span style="font-size:11px;font-weight:700;color:${c.tc};">MAEService 2.0 — Handbook</span>
+      <span style="font-size:8px;color:${c.tc};opacity:0.75;letter-spacing:.12em;">${c.label}</span>
     </div>
-    ${printSection('1. Project Overview', `
-      <p>MAEService 2.0 is a real-time IoT monitoring and management platform designed for industrial and enterprise environments. It provides live visibility into connected devices, MQTT telemetry streams, LoRaWAN gateways, and system health.</p>
-      <p>Architecture: React 19 SPA frontend + .NET 10 ASP.NET Core REST API. Data flows from physical sensors through LoRaWAN gateways and an MQTT broker into the backend database, then rendered live in the browser with a 3-second polling interval.</p>
-    `)}
-    ${printSection('2. Authentication', `
-      <p>All routes are JWT-protected. The backend issues signed tokens (HS256, 24h expiry).</p>
-      <table style="width:100%;border-collapse:collapse;font-size:10px">
-        <tr style="background:#f3f4f6"><th style="padding:6px 10px;text-align:left;border:1px solid #ddd">User</th><th style="padding:6px 10px;text-align:left;border:1px solid #ddd">Password</th><th style="padding:6px 10px;text-align:left;border:1px solid #ddd">Role</th></tr>
-        <tr><td style="padding:5px 10px;border:1px solid #ddd">admin</td><td style="padding:5px 10px;border:1px solid #ddd">admin123</td><td style="padding:5px 10px;border:1px solid #ddd">Full access</td></tr>
-        <tr><td style="padding:5px 10px;border:1px solid #ddd">operator</td><td style="padding:5px 10px;border:1px solid #ddd">operator123</td><td style="padding:5px 10px;border:1px solid #ddd">Device control</td></tr>
-        <tr><td style="padding:5px 10px;border:1px solid #ddd">viewer</td><td style="padding:5px 10px;border:1px solid #ddd">viewer123</td><td style="padding:5px 10px;border:1px solid #ddd">Read only</td></tr>
-      </table>
-    `)}
-    ${printSection('3. Dashboard', `
-      <p><strong>KPI Cards:</strong> MQTT Rate (msg/s), API Requests (req/s), Avg Latency (ms), Active Nodes — each with sparkline trend chart. Auto-refreshes every 3 seconds.</p>
-      <p><strong>System Health Gauges:</strong> SVG arc gauges for CPU, Memory, Disk, and Network utilization.</p>
-      <p><strong>Weekly Bar Chart:</strong> Daily message counts for the current week with Total/Delivered/Failed/Avg summary.</p>
-      <p><strong>System Alerts:</strong> Live feed of latest 10 alerts, color-coded by severity (critical/warning/info/success).</p>
-      <p><strong>Node Status:</strong> 2-column grid of all devices and gateways with protocol badges (MQTT/LoRaWAN).</p>
-      <p><strong>Live MQTT Feed:</strong> Scrolling table of raw messages with device ID, temperature, humidity, battery %.</p>
-    `)}
-    ${printSection('4. Devices', `
-      <p>Full inventory of all IoT endpoints. Devices are auto-registered when first seen in MQTT messages. Shows: Device ID, name, status (online/warning/offline), protocol, last-seen timestamp, and messages per second.</p>
-    `)}
-    ${printSection('5. Network', `
-      <p>Topology view of LoRaWAN gateways and their downstream sensors. Shows gateway health, connected device count, signal quality, region, and uptime. Source: GET /api/v2/network.</p>
-    `)}
-    ${printSection('6. Data Engine', `
-      <p>Visualizes the MQTT ingest pipeline. The backend MqttService background worker subscribes to topics (mae/devices/+/telemetry, mae/gateways/+/status, mae/sensors/+/data), parses JSON payloads, and writes TelemetryRecord entities to the database. Keeps 100 recent messages in memory.</p>
-    `)}
-    ${printSection('7. API Monitor', `
-      <p>Live view of backend endpoint performance: request volume, average response times, and error rates per endpoint. Helps diagnose latency spikes before they impact users.</p>
-    `)}
-    ${printSection('8. Architecture', `
-      <p>Static schematic of the full system data flow: Sensor → LoRaWAN gateway → HiveMQ broker → .NET MqttService → SQL Server/EF Core → REST API → React frontend (Netlify CDN).</p>
-    `)}
-    ${printSection('9. Settings', `
-      <p>Admin-only configuration for MQTT broker address, polling intervals, alert thresholds, and notifications. Changes persist via POST /api/v2/settings without application restart.</p>
-    `)}
-    ${printSection('10. Technology Stack', `
-      <p><strong>Frontend:</strong> React 19.2 · React DOM 19.2 · React Router DOM 7.13 · Axios 1.13 · Vite 7.3 · ESLint 9.39</p>
-      <p><strong>Backend:</strong> .NET 10 / ASP.NET Core · JWT Bearer 10.0.5 · Entity Framework Core 10.0.5 (SQL Server + InMemory) · MQTTnet 5.1</p>
-      <p><strong>Languages:</strong> JavaScript (JSX) · C# · HTML5 · CSS-in-JS · SQL · JSON</p>
-      <p><strong>Protocols:</strong> MQTT 5.0 · LoRaWAN 1.0 · REST/HTTP · JWT (RFC 7519) · OpenAPI 3.x · CORS</p>
-      <p><strong>Infrastructure:</strong> Docker · Netlify CDN · Azure SQL / SQL Server · HiveMQ Cloud</p>
-    `)}
-    ${printSection('11. API Reference (Base: /api/v2)', `
-      <table style="width:100%;border-collapse:collapse;font-size:10px">
-        <tr style="background:#f3f4f6">
-          <th style="padding:5px 10px;border:1px solid #ddd;text-align:left">Method</th>
-          <th style="padding:5px 10px;border:1px solid #ddd;text-align:left">Path</th>
-          <th style="padding:5px 10px;border:1px solid #ddd;text-align:left">Description</th>
-        </tr>
-        ${[
-          ['POST','auth/login','Authenticate user, get JWT'],
-          ['GET','dashboard/kpi','MQTT rate, API req/s, latency, active nodes'],
-          ['GET','dashboard/health','CPU, memory, disk, network %'],
-          ['GET','dashboard/alerts','Latest 10 system alerts'],
-          ['GET','dashboard/nodes','All devices and gateways'],
-          ['GET','dashboard/messages','Weekly message breakdown'],
-          ['GET','devices','List all devices'],
-          ['GET','devices/{id}','Single device details'],
-          ['PUT','devices/{id}','Update device metadata'],
-          ['DELETE','devices/{id}','Remove device'],
-          ['GET','mqtt/messages','Latest 100 MQTT messages'],
-        ].map(([m,p,d]) => `<tr><td style="padding:5px 10px;border:1px solid #ddd;font-weight:700;color:#1d4ed8">${m}</td><td style="padding:5px 10px;border:1px solid #ddd;font-family:monospace">/api/v2/${p}</td><td style="padding:5px 10px;border:1px solid #ddd">${d}</td></tr>`).join('')}
-      </table>
-    `)}
-    ${printSection('12. User Roles', `
-      <table style="width:100%;border-collapse:collapse;font-size:10px">
-        <tr style="background:#f3f4f6">
-          <th style="padding:5px 10px;border:1px solid #ddd;text-align:left">Role</th>
-          <th style="padding:5px 10px;border:1px solid #ddd;text-align:left">Dashboard</th>
-          <th style="padding:5px 10px;border:1px solid #ddd;text-align:left">Devices</th>
-          <th style="padding:5px 10px;border:1px solid #ddd;text-align:left">Settings</th>
-        </tr>
-        <tr><td style="padding:5px 10px;border:1px solid #ddd;font-weight:700">Admin</td><td style="padding:5px 10px;border:1px solid #ddd">Read + Write</td><td style="padding:5px 10px;border:1px solid #ddd">Read + Write</td><td style="padding:5px 10px;border:1px solid #ddd">Full access</td></tr>
-        <tr><td style="padding:5px 10px;border:1px solid #ddd;font-weight:700">Operator</td><td style="padding:5px 10px;border:1px solid #ddd">Read</td><td style="padding:5px 10px;border:1px solid #ddd">Control</td><td style="padding:5px 10px;border:1px solid #ddd">No access</td></tr>
-        <tr><td style="padding:5px 10px;border:1px solid #ddd;font-weight:700">Viewer</td><td style="padding:5px 10px;border:1px solid #ddd">Read only</td><td style="padding:5px 10px;border:1px solid #ddd">View only</td><td style="padding:5px 10px;border:1px solid #ddd">No access</td></tr>
-      </table>
-    `)}
-    <div style="text-align:center;margin-top:32px;padding-top:16px;border-top:2px solid #1d4ed8;font-size:9px;color:#999">
-      MAEService 2.0 · Platform Handbook · Confidential · Generated ${new Date().toLocaleDateString('en-GB')}
-    </div>
-  </div>
-  `
+    <span style="font-size:9px;font-weight:700;color:${c.tc};background:rgba(0,0,0,0.18);border-radius:10px;padding:2px 9px;">${pageNum} / ${total}</span>
+  </div>`
 }
 
-function printSection(title, content) {
+function pSection(title, content) {
+  return `<div style="margin-bottom:20px;">
+    <h2 style="font-size:13px;color:#1d4ed8;border-bottom:2px solid #1d4ed8;padding-bottom:5px;margin:0 0 10px;">${title}</h2>
+    <div style="font-size:10.5px;line-height:1.75;color:#333;">${content}</div>
+  </div>`
+}
+
+function pTable(headers, rows) {
+  const ths = headers.map(h => `<th style="padding:5px 9px;text-align:left;border:1px solid #ddd;background:#f3f4f6;font-size:9.5px;">${h}</th>`).join('')
+  const trs = rows.map(cells => `<tr>${cells.map(c => `<td style="padding:5px 9px;border:1px solid #ddd;font-size:9.5px;">${c}</td>`).join('')}</tr>`).join('')
+  return `<table style="width:100%;border-collapse:collapse;margin-bottom:12px;"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`
+}
+
+function buildPrintHTML() {
+  const date = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+  const T = 8
+
   return `
-    <div style="margin-bottom:24px;page-break-inside:avoid">
-      <h2 style="font-size:14px;color:#1d4ed8;border-bottom:2px solid #1d4ed8;padding-bottom:6px;margin-bottom:12px">${title}</h2>
-      <div style="font-size:11px;line-height:1.7;color:#333">${content}</div>
+  <!-- PAGE 1: Cover + TOC -->
+  <div class="hb-page">
+    ${pBar(0, 1, T)}
+    <div style="text-align:center;border-bottom:3px solid #f8d200;padding-bottom:22px;margin-bottom:28px;">
+      <div style="display:inline-block;width:52px;height:52px;border-radius:10px;background:#1d4ed8;color:#fff;font-size:28px;font-weight:900;line-height:52px;text-align:center;margin-bottom:10px;">M</div>
+      <h1 style="margin:0;font-size:22px;color:#0f172a;">MAEService 2.0 — Platform Handbook</h1>
+      <p style="margin:4px 0 0;font-size:10px;color:#1d4ed8;letter-spacing:.15em;">FULL PLATFORM DOCUMENTATION &amp; TECHNICAL REFERENCE</p>
+      <p style="margin:6px 0 0;font-size:9px;color:#666;">Generated ${date}</p>
     </div>
+    ${pSection('Table of Contents', `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${[['1','Project Overview','#3b82f6'],['2','Authentication','#0ea5e9'],['3','Dashboard','#10b981'],['4','Devices','#8b5cf6'],['5','Network','#f59e0b'],['6','Data Engine','#ef4444'],['7','API Monitor','#0ea5e9'],['8','Architecture','#10b981'],['9','Settings','#64748b'],['10','Tech Stack','#3b82f6'],['11','API Reference','#0ea5e9'],['12','User Roles','#f59e0b']]
+          .map(([n,l,c]) => `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;"><span style="background:${c}22;border:1px solid ${c}55;color:${c};font-weight:700;font-size:9px;padding:1px 7px;border-radius:10px;">${n}</span><span style="font-size:10px;color:#475569;">${l}</span></div>`).join('')}
+      </div>
+    `)}
+  </div>
+
+  <!-- PAGE 2: Overview + Auth -->
+  <div class="hb-page">
+    ${pBar(1, 2, T)}
+    ${pSection('1 · Project Overview', `
+      <p style="background:#eff6ff;border-left:3px solid #3b82f6;padding:10px 14px;border-radius:6px;color:#1e40af;margin-bottom:12px;">MAEService 2.0 is a real-time IoT monitoring and management platform for industrial and enterprise environments — live visibility into connected devices, MQTT telemetry streams, LoRaWAN gateways, and system health.</p>
+      <p>Architecture: React 19 SPA frontend + .NET 10 ASP.NET Core REST API. Data flows from physical sensors through LoRaWAN gateways and an MQTT broker into the backend database, rendered live in the browser with a 3-second polling interval.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;"><strong style="font-size:10px;color:#1d4ed8;">Frontend</strong><p style="margin:6px 0 0;font-size:10px;">React 19 SPA · Vite · React Router v7 · Axios · Custom CSS-in-JS (no component library)</p></div>
+        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;"><strong style="font-size:10px;color:#1d4ed8;">Backend</strong><p style="margin:6px 0 0;font-size:10px;">.NET 10 ASP.NET Core · JWT auth · Entity Framework Core · MQTTnet for broker connectivity</p></div>
+      </div>
+    `)}
+    ${pSection('2 · Authentication', `
+      <p>All routes are protected. On first load the app checks localStorage for a saved JWT. If absent, the user is redirected to the Login page. The token, username, and role are stored in localStorage and reloaded on refresh.</p>
+      <p style="background:#fffbeb;border-left:3px solid #f59e0b;padding:8px 14px;border-radius:6px;color:#92400e;margin-bottom:12px;">⚠ Demo credentials — for testing only. Change before production deployment.</p>
+      ${pTable(['Username','Password','Role','Permissions'],[
+        ['admin','admin123','Admin','Full read/write access to all modules'],
+        ['operator','operator123','Operator','Read access + device control'],
+        ['viewer','viewer123','Viewer','Read-only access to dashboard and reports'],
+      ])}
+      <p>The backend issues a signed JWT (HS256, 24-hour expiry). Key is set in <code>appsettings.json → Jwt:Key</code>.</p>
+    `)}
+  </div>
+
+  <!-- PAGE 3: Dashboard -->
+  <div class="hb-page">
+    ${pBar(2, 3, T)}
+    ${pSection('3 · Dashboard', `
+      <p style="background:#f0fdf4;border-left:3px solid #10b981;padding:10px 14px;border-radius:6px;color:#065f46;margin-bottom:12px;">The Dashboard is the landing page after login. It auto-refreshes every 3 seconds by polling six REST endpoints and renders live KPIs, health gauges, alert feeds, node status, and the raw MQTT message stream.</p>
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;">3.1 KPI Cards</h3>
+      <p>Four cards display the most critical real-time metrics, each with a sparkline trend chart (SVG line + area fill).</p>
+      ${pTable(['KPI','Unit','Source endpoint'],[
+        ['MQTT Rate','msg/s','GET /api/v2/dashboard/kpi → mqttRate'],
+        ['API Requests','req/s','GET /api/v2/dashboard/kpi → apiRequests'],
+        ['Avg Latency','ms','GET /api/v2/dashboard/kpi → avgLatency'],
+        ['Active Nodes','count','GET /api/v2/dashboard/kpi → activeNodes'],
+      ])}
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;">3.2 System Health Gauges</h3>
+      <p>SVG arc-progress gauges for CPU, Memory, Disk, and Network utilization. Color transitions green → amber → red. Source: <code>GET /api/v2/dashboard/health</code>.</p>
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;">3.3 Weekly Bar Chart</h3>
+      <p>SVG bar chart of daily message counts for the current week. Summary stats: Total, Delivered, Failed, Average per hour.</p>
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;">3.4 System Alerts</h3>
+      <p>Live feed of the latest 10 alerts with timestamp and severity: <strong>critical</strong>, <strong>warning</strong>, <strong>info</strong>, <strong>success</strong>.</p>
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;">3.5 Node Status Grid</h3>
+      <p>2-column card grid of all registered devices and gateways: online/offline status, msg/s rate, and protocol badge (MQTT or LoRaWAN).</p>
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 6px;">3.6 Live MQTT Feed</h3>
+      <p>Scrolling table of raw broker messages: Device ID, timestamp, temperature (°C), humidity (%), battery (%). Source: <code>GET /api/v2/mqtt/messages</code>.</p>
+    `)}
+  </div>
+
+  <!-- PAGE 4: Devices, Network, Data Engine -->
+  <div class="hb-page">
+    ${pBar(3, 4, T)}
+    ${pSection('4 · Devices', `
+      <p style="background:#f5f3ff;border-left:3px solid #8b5cf6;padding:10px 14px;border-radius:6px;color:#4c1d95;margin-bottom:12px;">Full inventory of all IoT endpoints. Devices are auto-created by the MQTT service when a new device ID first appears in an incoming message.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;"><strong style="font-size:10px;color:#1d4ed8;">Device Fields</strong><ul style="margin:6px 0 0;padding-left:16px;font-size:10px;line-height:1.8;color:#475569;"><li>Device ID (unique)</li><li>Name / Label</li><li>Status (online/offline/warning)</li><li>Protocol (MQTT/LoRaWAN)</li><li>Last seen timestamp</li><li>Messages per second</li></ul></div>
+        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;"><strong style="font-size:10px;color:#1d4ed8;">Status Definitions</strong><ul style="margin:6px 0 0;padding-left:16px;font-size:10px;line-height:1.8;"><li style="color:#10b981;">Online — active in last 30s</li><li style="color:#f59e0b;">Warning — delayed or weak signal</li><li style="color:#ef4444;">Offline — no messages 5+ min</li></ul></div>
+      </div>
+    `)}
+    ${pSection('5 · Network', `
+      <p>Topology view of LoRaWAN gateways and downstream devices. Shows gateway health, connected device count, signal quality, region, and uptime statistics. Source: <code>GET /api/v2/network</code>.</p>
+    `)}
+    ${pSection('6 · Data Engine', `
+      <p>Visualizes the MQTT ingest pipeline. The backend MqttService subscribes to MQTT topics, parses JSON payloads, and writes TelemetryRecord entities to the database. Up to 100 recent messages are kept in memory.</p>
+      <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;"><strong style="font-size:10px;color:#1d4ed8;">Subscribed MQTT Topics</strong><ul style="margin:6px 0 0;padding-left:16px;font-size:10px;line-height:1.8;font-family:monospace;color:#0369a1;"><li>mae/devices/+/telemetry</li><li>mae/gateways/+/status</li><li>mae/sensors/+/data</li><li>sensors/+/data</li></ul></div>
+    `)}
+  </div>
+
+  <!-- PAGE 5: API Monitor, Architecture, Settings -->
+  <div class="hb-page">
+    ${pBar(4, 5, T)}
+    ${pSection('7 · API Monitor', `
+      <p>Live view of backend endpoint performance: request volume, average response times, error rates, and per-endpoint breakdowns. Useful for diagnosing latency spikes. Metrics polled from <code>GET /api/v2/monitor/stats</code>.</p>
+    `)}
+    ${pSection('8 · Architecture', `
+      <p>Visual schematic of the full system — from physical sensors, through LoRaWAN gateways and the MQTT broker, up to the .NET API and React frontend. Helps operators and new team members understand data flow.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;"><strong style="font-size:10px;color:#1d4ed8;">Data Flow</strong><ul style="margin:6px 0 0;padding-left:16px;font-size:10px;line-height:1.8;color:#475569;"><li>Sensor → LoRaWAN gateway</li><li>Gateway → MQTT broker (HiveMQ)</li><li>Broker → .NET MqttService</li><li>MqttService → SQL Server / EF Core</li><li>API → React frontend (Axios)</li><li>React → Browser (Vite SPA)</li></ul></div>
+        <div style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;"><strong style="font-size:10px;color:#1d4ed8;">Deployment</strong><ul style="margin:6px 0 0;padding-left:16px;font-size:10px;line-height:1.8;color:#475569;"><li>Frontend: Netlify CDN</li><li>Backend: Docker container</li><li>Database: Azure SQL / local SQL Server</li><li>MQTT Broker: HiveMQ Cloud</li><li>CORS: Netlify + localhost origins</li></ul></div>
+      </div>
+    `)}
+    ${pSection('9 · Settings', `
+      <p>Admin-only page for configuring platform parameters: MQTT broker address, polling intervals, alert thresholds, and notification preferences. Changes persist via <code>POST /api/v2/settings</code> without restarting the application.</p>
+    `)}
+  </div>
+
+  <!-- PAGE 6: Technology Stack -->
+  <div class="hb-page">
+    ${pBar(5, 6, T)}
+    ${pSection('10 · Technology Stack', `
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:0 0 8px;">Frontend</h3>
+      ${pTable(['Library / Tool','Version','Purpose'],[
+        ['React','19.2.0','Core UI library — component tree, hooks, state management'],
+        ['React DOM','19.2.0','Renders React components to the browser DOM'],
+        ['React Router DOM','7.13.1','Client-side routing, SPA navigation, protected routes'],
+        ['Axios','1.13.6','HTTP client for REST API calls with interceptors'],
+        ['Vite','7.3.1','Build tool and HMR dev server'],
+        ['@vitejs/plugin-react','5.1.1','Babel-based React fast-refresh for Vite'],
+        ['ESLint','9.39.1','Static code analysis and style enforcement'],
+      ])}
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 8px;">Backend</h3>
+      ${pTable(['Library / Tool','Version','Purpose'],[
+        ['.NET / ASP.NET Core','10.0','Web framework hosting the REST API and background services'],
+        ['JwtBearer','10.0.5','JWT Bearer token middleware for endpoint authorization'],
+        ['AspNetCore.OpenApi','10.0.3','Auto-generates OpenAPI (Swagger) spec from controllers'],
+        ['EF Core SqlServer','10.0.5','ORM for SQL Server database access'],
+        ['EF Core InMemory','10.0.5','In-memory database provider for development / testing'],
+        ['MQTTnet','5.1.0','MQTT client — connects to HiveMQ broker, pub/sub'],
+      ])}
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 8px;">Languages &amp; Protocols</h3>
+      <p><strong>Languages:</strong> JavaScript (JSX) · C# · HTML5 · CSS-in-JS · SQL · JSON</p>
+      <p><strong>Protocols:</strong> MQTT 5.0 · LoRaWAN 1.0 · REST/HTTP · JWT (RFC 7519) · CORS · OpenAPI 3.x</p>
+      <p><strong>Infrastructure:</strong> Docker · Netlify CDN · Azure SQL / SQL Server · HiveMQ Cloud · GitHub Actions</p>
+    `)}
+  </div>
+
+  <!-- PAGE 7: API Reference -->
+  <div class="hb-page">
+    ${pBar(6, 7, T)}
+    ${pSection('11 · API Reference', `
+      <p style="background:#f0f9ff;border-left:3px solid #0ea5e9;padding:10px 14px;border-radius:6px;color:#0c4a6e;margin-bottom:12px;">All endpoints versioned under <strong>/api/v2</strong>. Require <code>Authorization: Bearer &lt;token&gt;</code> header — except <code>/auth/login</code>.</p>
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:0 0 8px;">Authentication</h3>
+      ${pTable(['Method','Path','Description'],[
+        ['POST','/api/v2/auth/login','Authenticate user, receive JWT token'],
+        ['POST','/api/v2/auth/validate','Validate an existing token'],
+      ])}
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 8px;">Dashboard</h3>
+      ${pTable(['Method','Path','Description'],[
+        ['GET','/api/v2/dashboard/kpi','MQTT rate, API req/s, latency, active nodes'],
+        ['GET','/api/v2/dashboard/health','CPU, memory, disk, network percentages'],
+        ['GET','/api/v2/dashboard/alerts','Latest 10 system alerts'],
+        ['GET','/api/v2/dashboard/nodes','All devices and gateways with summary'],
+        ['GET','/api/v2/dashboard/messages','Weekly message count breakdown'],
+      ])}
+      <h3 style="font-size:11px;font-weight:700;color:#334155;margin:14px 0 8px;">Devices &amp; MQTT</h3>
+      ${pTable(['Method','Path','Description'],[
+        ['GET','/api/v2/devices','List all registered devices'],
+        ['GET','/api/v2/devices/{id}','Get single device details'],
+        ['PUT','/api/v2/devices/{id}','Update device metadata'],
+        ['DELETE','/api/v2/devices/{id}','Remove device from registry'],
+        ['GET','/api/v2/mqtt/messages','Latest MQTT messages (max 100)'],
+      ])}
+    `)}
+  </div>
+
+  <!-- PAGE 8: User Roles -->
+  <div class="hb-page">
+    ${pBar(7, 8, T)}
+    ${pSection('12 · User Roles &amp; Permissions', `
+      ${pTable(['Role','Dashboard','Devices','Settings','Admin'],[
+        ['Admin','✓ Read + Write','✓ Read + Write','✓ Full access','✓ User management'],
+        ['Operator','✓ Read','✓ Control','✗ No access','✗ No access'],
+        ['Viewer','✓ Read only','✓ View only','✗ No access','✗ No access'],
+      ])}
+    `)}
+    <div style="text-align:center;margin-top:40px;padding-top:16px;border-top:2px solid #ef4444;font-size:9px;color:#999;">
+      MAEService 2.0 · Platform Handbook · Confidential · Generated ${date}
+    </div>
+  </div>
   `
 }
